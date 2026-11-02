@@ -102,7 +102,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        web.loadUrl(START_URL);
+        // ?selftest=1 — самопроверка для автоматического теста на эмуляторе
+        web.loadUrl(START_URL + (getIntent().getBooleanExtra("selftest", false) ? "?selftest=1" : ""));
     }
 
     private static final Map<String, String> MIME = new HashMap<>();

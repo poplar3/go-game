@@ -1118,3 +1118,15 @@ initSettings();
 problemsTab.reload().catch((e) => { $("p-title").textContent = "Не удалось загрузить задачи: " + e.message; });
 engine.start(engineSettings());
 window.__app = { gameTab, problemsTab, engine, showTab };
+
+// Самопроверка для автоматического теста: запрос к KataGo через мост и загрузка задач
+if (location.search.includes("selftest")) {
+  let done = false;
+  engine.onChange((ready) => {
+    if (!ready || done) return;
+    done = true;
+    engine.analyzePosition(gameTab.game, (a) => {
+      console.log(`[selftest] analysis ${a && a.moves.length ? "ok " + a.moves[0].move : "FAILED"}; problems ${problemsTab.problems.length}`);
+    }, { visits: 20 });
+  });
+}

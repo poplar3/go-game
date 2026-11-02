@@ -72,9 +72,10 @@ public class KataGoBridge {
             String[] names = am.list("katago");
             if (names == null) return;
             for (String n : names) {
-                File out = new File(dir, n);
+                // в APK файл лежит как *.bin.gz.gzdata (иначе сборщик распаковал бы .gz)
+                File out = new File(dir, n.endsWith(".gzdata") ? n.substring(0, n.length() - 7) : n);
                 if (out.exists() && out.length() > 0) continue;
-                File tmp = new File(dir, n + ".part");
+                File tmp = new File(dir, out.getName() + ".part");
                 try (InputStream in = am.open("katago/" + n); OutputStream o = new FileOutputStream(tmp)) {
                     byte[] buf = new byte[1 << 16];
                     int r;

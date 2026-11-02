@@ -62,8 +62,8 @@ jobs:
           B10=g170e-b10c128-s1141046784-d204142634.bin.gz
           B10_URL=https://github.com/lightvector/KataGo/raw/${KATAGO_VERSION}/cpp/tests/models/$B10
           mkdir -p app/src/main/assets/katago
-          curl -fL --retry 3 -o app/src/main/assets/katago/$B10 "$B10_URL"
-          B10_SIZE=$(stat -c %s app/src/main/assets/katago/$B10)
+          curl -fL --retry 3 -o app/src/main/assets/katago/$B10.gzdata "$B10_URL"
+          B10_SIZE=$(stat -c %s app/src/main/assets/katago/$B10.gzdata)
           gh api repos/lightvector/KataGo/releases/tags/v1.4.5 \
             --jq '[.assets[] | select(.name | test("^g170e-b20c.*\\.bin\\.gz$")) | {file: .name, url: .browser_download_url, size: .size}]' > b20.json
           jq --arg f "$B10" --arg u "$B10_URL" --argjson s "$B10_SIZE" '[{file: $f, url: $u, size: $s}] + .' b20.json \

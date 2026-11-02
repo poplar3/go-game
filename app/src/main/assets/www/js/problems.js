@@ -30,7 +30,7 @@ async function fetchJson(url, gz) {
 export async function loadAll() {
   const [levels, problems] = parse(await fetchJson("data/problems.json", false));
   try {
-    const [lv, pr] = parse(await fetchJson("data/library.json.gz", true));
+    const [lv, pr] = parse(await fetchJson("data/library.gzdata", true));
     levels.push(...lv); problems.push(...pr);
   } catch (e) { console.error("library", e); }
   try {

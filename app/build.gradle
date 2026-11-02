@@ -49,7 +49,8 @@ android {
     }
 
     androidResources {
-        noCompress += ["gz", "bin"]
+        // Файлы *.gz сборщик распаковывает и переименовывает, поэтому сжатые данные лежат как *.gzdata
+        noCompress += ["gzdata"]
     }
 
     compileOptions {
