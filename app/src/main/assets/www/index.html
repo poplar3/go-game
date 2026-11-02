@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Го — тренер</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <!-- ======================= Партия ======================= -->
+  <section id="tab-game" class="tab active">
+    <div id="g-info" class="info"></div>
+    <div class="board-wrap"><canvas id="g-board"></canvas></div>
+    <div class="nav">
+      <button data-nav="first" title="В начало">⏮</button>
+      <button data-nav="prev" title="Назад">◀</button>
+      <span id="g-move" class="move-label"></span>
+      <button data-nav="next" title="Вперёд">▶</button>
+      <button data-nav="last" title="К последнему ходу">⏭</button>
+    </div>
+    <div class="grid4">
+      <button id="g-new">Новая</button>
+      <button id="g-pass">Пас</button>
+      <button id="g-undo">Отменить</button>
+      <button id="g-resign">Сдаться</button>
+      <button id="g-hint" class="accent">Подсказка</button>
+      <button id="g-explain" class="accent">Объяснить ход</button>
+      <button id="g-review" class="accent">Разбор партии</button>
+      <button id="g-score">Подсчёт</button>
+    </div>
+    <label class="check"><input type="checkbox" id="g-owner"> Карта территории</label>
+    <div id="g-progress" class="progress hidden"><div></div><span></span></div>
+    <div id="g-text" class="text"></div>
+    <details id="g-review-box">
+      <summary>График и ошибки партии</summary>
+      <canvas id="g-graph" class="graph"></canvas>
+      <ul id="g-mistakes" class="mistakes"></ul>
+    </details>
+    <div id="g-engine" class="engine-status"></div>
+  </section>
+
+  <!-- ======================= Задачи ======================= -->
+  <section id="tab-problems" class="tab">
+    <div class="row">
+      <button id="p-list-btn">☰ Список задач</button>
+      <span id="p-progress" class="small"></span>
+    </div>
+    <div id="p-title" class="ptitle"></div>
+    <div id="p-task" class="ptask"></div>
+    <div id="p-status" class="pstatus"></div>
+    <div class="board-wrap"><canvas id="p-board"></canvas></div>
+    <div class="grid3">
+      <button id="p-reset">Заново</button>
+      <button id="p-hint">Подсказка</button>
+      <button id="p-solution">Решение</button>
+      <button id="p-prev">◀ Предыдущая</button>
+      <button id="p-ai" class="accent">Разбор с ИИ</button>
+      <button id="p-next">Следующая ▶</button>
+    </div>
+    <div id="p-text" class="text"></div>
+  </section>
+
+  <!-- ======================= Правила ======================= -->
+  <section id="tab-rules" class="tab text-page">
+    <h2>Правила го за 5 минут</h2>
+    <p><b>Цель игры</b> — окружить больше территории, чем соперник. Чёрные и белые ходят по очереди,
+    ставя по одному камню на пересечения линий. Первыми ходят чёрные. Камни не двигаются.</p>
+    <p><b>Дамэ</b> — свободные пункты рядом с камнем по линиям. Камни, стоящие рядом по линиям, образуют группу
+    с общими дамэ. Если занять все дамэ группы соперника, она снимается с доски, а камни становятся пленниками.</p>
+    <p><b>Запрещённые ходы.</b> Нельзя ставить камень туда, где у него (и его группы) не будет дамэ, если только
+    этот ход не снимает камни соперника. <b>Ко:</b> нельзя сразу отбить один камень, который только что снял один ваш
+    камень, — сначала нужно сходить в другом месте.</p>
+    <p><b>Жизнь и смерть.</b> Группа с двумя отдельными «глазами» (пустыми пунктами внутри) не может быть снята никогда.
+    Группа, которая не может сделать два глаза, считается мёртвой и в конце партии снимается при подсчёте.</p>
+    <p><b>Конец партии.</b> Когда оба игрока подряд пасуют, партия заканчивается. Мёртвые камни убираются,
+    затем считаются очки.</p>
+    <h3>Подсчёт очков</h3>
+    <p><b>Китайские правила (по площади):</b> очки = ваши камни на доске + пустые пункты, окружённые только вашими камнями.</p>
+    <p><b>Японские правила (по территории):</b> очки = окружённые пустые пункты + пленники (снятые и мёртвые камни
+    соперника). Камни на доске не считаются.</p>
+    <p><b>Коми</b> — очки, которые белые получают за то, что ходят вторыми: обычно 7,5 по китайским правилам
+    и 6,5 по японским. Половинка исключает ничью.</p>
+    <h3>Как учиться с этой программой</h3>
+    <ol>
+    <li>Пройдите задачи по порядку уровней: каждая объясняет, почему ход правильный и почему ошибки не работают.</li>
+    <li>Играйте на доске 9×9 с ботом «Новичок» или «Начинающий». Нажимайте «Подсказка», если не знаете, куда ходить.</li>
+    <li>После партии нажмите «Разбор партии»: ИИ найдёт ошибки, покажет лучший ход и объяснит, что было не так.</li>
+    </ol>
+    <h3>Как ставить камни</h3>
+    <p>Коснитесь пересечения: появится полупрозрачный камень, его можно передвинуть пальцем. Камень ставится,
+    когда вы отпускаете палец. На больших досках по умолчанию включено подтверждение: первое касание показывает
+    камень с зелёной обводкой, второе касание того же пункта ставит его (меняется в «Настройках»).</p>
+    <p>Всё работает на телефоне, без интернета. ИИ KataGo — открытый движок го, он встроен в приложение.</p>
+  </section>
+
+  <!-- ======================= Настройки ======================= -->
+  <section id="tab-settings" class="tab text-page">
+    <h2>ИИ KataGo</h2>
+    <p class="small">KataGo — сильный открытый движок го (лицензия MIT). Он играет за бота и разбирает ходы
+    прямо на телефоне, без интернета.</p>
+    <div id="s-engine" class="engine-box"></div>
+    <label>Нейросеть
+      <select id="s-model"></select>
+    </label>
+    <div id="s-models-info" class="small"></div>
+    <div class="row wrap" id="s-downloads"></div>
+    <div id="s-dl" class="progress hidden"><div></div><span></span></div>
+    <label>Потоков процессора <select id="s-threads"></select></label>
+    <label>Глубина разбора партии (просмотров на ход) <select id="s-visits"></select></label>
+    <button id="s-restart">Сохранить и перезапустить ИИ</button>
+
+    <h2>Доска</h2>
+    <label class="check"><input type="checkbox" id="s-confirm19"> Подтверждать ход вторым касанием на досках 13×13 и 19×19</label>
+    <label class="check"><input type="checkbox" id="s-confirm9"> Подтверждать ход вторым касанием на доске 9×9</label>
+
+    <h2>Файлы</h2>
+    <div class="row wrap">
+      <button id="s-open">Открыть партию (SGF)</button>
+      <button id="s-save">Сохранить партию (SGF)</button>
+    </div>
+    <h2>Задачи</h2>
+    <p class="small">Импорт сборников цумэго в формате SGF: можно выбрать несколько файлов сразу или ZIP-архив
+    с папками (например, сборники с nikoraido.ru или rusgolib.gofederation.ru). Задачи появятся в разделе
+    «Мои сборники». Правильные варианты распознаются по пометкам RIGHT / Correct / «правильно», а если
+    пометок нет, правильным считается первый вариант.</p>
+    <div class="row wrap">
+      <button id="s-import">Импорт задач (SGF или ZIP)</button>
+      <button id="s-clear-imported">Удалить импортированные</button>
+      <button id="s-reset-progress">Сбросить отметки о решённых</button>
+    </div>
+    <h2>О программе</h2>
+    <p class="small">Го — тренер для Android. Игра в го с ботом, задачи по уровням и разбор ходов с объяснениями.
+    Бот и анализ: KataGo (github.com/lightvector/KataGo), лицензия MIT. Задачи библиотеки: сборники
+    Ultimate Go Problems и курсы wbaduk, условия и комментарии переведены на русский.</p>
+    <p class="small" id="s-version"></p>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="game" class="active"><span>⚫</span>Партия</button>
+  <button data-tab="problems"><span>🧩</span>Задачи</button>
+  <button data-tab="rules"><span>📖</span>Правила</button>
+  <button data-tab="settings"><span>⚙</span>Настройки</button>
+</nav>
+
+<!-- Список задач -->
+<div id="p-list" class="overlay hidden">
+  <div class="overlay-head">
+    <button id="p-list-close">✕</button>
+    <span id="p-list-progress" class="small"></span>
+  </div>
+  <div id="p-tree" class="tree"></div>
+</div>
+
+<!-- Диалоги -->
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <div id="modal-title" class="modal-title"></div>
+    <div id="modal-body"></div>
+    <div id="modal-buttons" class="modal-buttons"></div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<input type="file" id="file-input" class="hidden" multiple>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

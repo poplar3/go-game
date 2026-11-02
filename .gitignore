@@ -1,0 +1,12 @@
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+app/src/main/jniLibs/
+app/src/main/assets/katago/
+app/src/main/assets/www/data/models.json
+build-katago/
+out/
+katago-bin/
+dist/

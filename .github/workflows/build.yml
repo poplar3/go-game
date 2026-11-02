@@ -1,0 +1,95 @@
+name: Сборка APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KATAGO_VERSION: v1.16.4
+
+jobs:
+  katago:
+    name: KataGo для ${{ matrix.abi }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a, x86_64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Кэш собранного KataGo
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: out
+          key: katago-${{ env.KATAGO_VERSION }}-${{ matrix.abi }}-${{ hashFiles('katago/build-android.sh') }}
+      - name: Сборка
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q libeigen3-dev ninja-build
+          ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME" katago/build-android.sh ${{ matrix.abi }} out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: katago-${{ matrix.abi }}
+          path: out/${{ matrix.abi }}/libkatago.so
+
+  apk:
+    name: Приложение
+    needs: katago
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: katago-*
+          path: katago-bin
+      - name: Программа KataGo в APK
+        run: |
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            mkdir -p app/src/main/jniLibs/$abi
+            cp katago-bin/katago-$abi/libkatago.so app/src/main/jniLibs/$abi/
+          done
+          ls -laR app/src/main/jniLibs
+      - name: Нейросеть KataGo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/lightvector/KataGo/releases/tags/v1.4.5 \
+            --jq '[.assets[] | select(.name | test("^g170e-b(10|15|20)c.*\\.bin\\.gz$")) | {file: .name, url: .browser_download_url, size: .size}] | sort_by(.size)' \
+            > app/src/main/assets/www/data/models.json
+          cat app/src/main/assets/www/data/models.json
+          url=$(jq -r '.[0].url' app/src/main/assets/www/data/models.json)
+          name=$(jq -r '.[0].file' app/src/main/assets/www/data/models.json)
+          mkdir -p app/src/main/assets/katago
+          curl -fL --retry 3 -o "app/src/main/assets/katago/$name" "$url"
+          ls -la app/src/main/assets/katago
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Сборка APK
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 1.0.${{ github.run_number }}
+        run: |
+          ./gradlew --no-daemon assembleRelease
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk dist/GoTrainer-1.0.${{ github.run_number }}.apk
+          ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GoTrainer-apk
+          path: dist/*.apk
+      - name: Релиз
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=v1.0.${{ github.run_number }}
+          gh release create "$tag" dist/*.apk --target "$GITHUB_SHA" --title "Го — тренер $tag" \
+            --notes "Скачайте файл GoTrainer-*.apk ниже (Assets) на телефон и откройте его, чтобы установить. Если Android спросит, разрешите установку из этого источника."

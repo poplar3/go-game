@@ -1,0 +1,4 @@
+(;GM[1]SZ[19]CA[UTF-8]
+(;AB[aa][ba][ca]AW[ab][bb][cb][db]C[Black to live]B[da])
+(;AB[aa][ba][ca]AW[ab][bb][cb][db]B[da]C[Dia. 1 (Correct) Black lives];W[ea];B[fa])
+(;AB[aa][ba][ca]AW[ab][bb][cb][db]B[da]C[x];W[ea]C[Dia. 2 (Failure) black dies]))

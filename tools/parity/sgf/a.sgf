@@ -1,0 +1,3 @@
+(;GM[1]FF[4]SZ[19]GN[Problem 12]C[Black to kill. Elementary]PL[B]AB[pc][qc][rc][oc][nb]AW[pb][qb][rb][sb][ob][od]
+(;B[sa]C[Correct! This kills.];W[ra];B[pa]C[RIGHT])
+(;B[ra]C[Wrong: white lives];W[sa]))

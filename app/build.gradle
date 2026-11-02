@@ -1,0 +1,59 @@
+plugins {
+    id "com.android.application"
+}
+
+def versionCodeEnv = (System.getenv("VERSION_CODE") ?: "1").toInteger()
+def versionNameEnv = System.getenv("VERSION_NAME") ?: "1.0"
+
+android {
+    namespace "ru.gotrainer"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "ru.gotrainer"
+        minSdk 26
+        targetSdk 35
+        versionCode versionCodeEnv
+        versionName versionNameEnv
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+        }
+    }
+
+    signingConfigs {
+        // Постоянный ключ, чтобы новые версии устанавливались поверх старых.
+        release {
+            storeFile file(System.getenv("SIGNING_STORE") ?: "gotrainer.keystore")
+            storePassword System.getenv("SIGNING_STORE_PASSWORD") ?: "gotrainer"
+            keyAlias System.getenv("SIGNING_KEY_ALIAS") ?: "gotrainer"
+            keyPassword System.getenv("SIGNING_KEY_PASSWORD") ?: "gotrainer"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            // KataGo запускается как отдельная программа из папки нативных библиотек,
+            // поэтому файл должен лежать на диске распакованным.
+            useLegacyPackaging true
+        }
+    }
+
+    androidResources {
+        noCompress += ["gz", "bin"]
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
