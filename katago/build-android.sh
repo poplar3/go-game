@@ -30,7 +30,8 @@ cmake -S "$SRC/cpp" -B "$BUILD" -G Ninja \
   -DANDROID_STL=c++_static \
   -DCMAKE_BUILD_TYPE=Release \
   -DUSE_BACKEND=EIGEN \
-  -DNO_GIT_REVISION=1
+  -DNO_GIT_REVISION=1 \
+  -DCMAKE_CXX_FLAGS="-include endian.h"
 cmake --build "$BUILD" --target katago -j"$(nproc)"
 
 mkdir -p "$OUT/$ABI"
