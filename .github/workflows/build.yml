@@ -58,14 +58,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Быстрая сеть b10 (11 МБ) встраивается в APK; сильная b20 (87 МБ) скачивается в приложении по желанию.
+          B10=g170e-b10c128-s1141046784-d204142634.bin.gz
+          B10_URL=https://github.com/lightvector/KataGo/raw/${KATAGO_VERSION}/cpp/tests/models/$B10
+          mkdir -p app/src/main/assets/katago
+          curl -fL --retry 3 -o app/src/main/assets/katago/$B10 "$B10_URL"
+          B10_SIZE=$(stat -c %s app/src/main/assets/katago/$B10)
           gh api repos/lightvector/KataGo/releases/tags/v1.4.5 \
-            --jq '[.assets[] | select(.name | test("^g170e-b(10|15|20)c.*\\.bin\\.gz$")) | {file: .name, url: .browser_download_url, size: .size}] | sort_by(.size)' \
+            --jq '[.assets[] | select(.name | test("^g170e-b20c.*\\.bin\\.gz$")) | {file: .name, url: .browser_download_url, size: .size}]' > b20.json
+          jq --arg f "$B10" --arg u "$B10_URL" --argjson s "$B10_SIZE" '[{file: $f, url: $u, size: $s}] + .' b20.json \
             > app/src/main/assets/www/data/models.json
           cat app/src/main/assets/www/data/models.json
-          url=$(jq -r '.[0].url' app/src/main/assets/www/data/models.json)
-          name=$(jq -r '.[0].file' app/src/main/assets/www/data/models.json)
-          mkdir -p app/src/main/assets/katago
-          curl -fL --retry 3 -o "app/src/main/assets/katago/$name" "$url"
           ls -la app/src/main/assets/katago
       - uses: actions/setup-java@v4
         with:
@@ -85,6 +88,34 @@ jobs:
         with:
           name: GoTrainer-apk
           path: dist/*.apk
+
+  test:
+    name: Проверка на эмуляторе Android
+    needs: apk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: GoTrainer-apk
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: katago-x86_64
+          path: katago-x86_64
+      - name: Включить KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Запуск приложения и KataGo
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: bash tools/emulator-test.sh
       - name: Релиз
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:

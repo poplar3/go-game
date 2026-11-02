@@ -75,6 +75,7 @@ class KataGoEngine {
   _setStatus(ready, text) {
     this.ready = ready;
     this.status = text;
+    console.log("[engine] " + text);
     for (const fn of this.listeners) { try { fn(ready, text); } catch (e) { console.error(e); } }
   }
 
