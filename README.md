@@ -8,6 +8,12 @@
 [KataGo](https://github.com/lightvector/KataGo) (лицензия MIT): он собран под процессор телефона
 и встроен в приложение вместе с быстрой нейросетью.
 
+## Версия для компьютера (Windows, Linux)
+
+Настольная программа на Python и Qt лежит в папке [`desktop`](desktop): там же её описание,
+сборка `GoTrainer.exe` для Windows и пакетов `.deb` и AppImage для Linux. Готовые файлы
+публикуются в [Releases](../../releases) под названием «Го — тренер для ПК».
+
 ## Как установить
 
 1. Откройте раздел [Releases](../../releases) и скачайте на телефон последний файл `GoTrainer-*.apk`.
@@ -45,6 +51,8 @@
   armeabi-v7a и x86_64.
 - `.github/workflows/build.yml` — GitHub Actions собирает KataGo, скачивает нейросеть, собирает APK
   и публикует его в Releases при каждом изменении ветки `main`.
+- `desktop/` — версия для компьютера; `.github/workflows/desktop.yml` собирает её для Windows (zip с exe)
+  и Linux (.deb, AppImage) и публикует в Releases.
 
 ### Собрать самому
 

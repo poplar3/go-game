@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Go Trainer
+Name[ru]=Го — тренер
+GenericName=Go game
+GenericName[ru]=Игра го
+Comment=Play Go against a bot, solve problems and get move explanations
+Comment[ru]=Игра го с ботом, учебные задачи и разбор ходов
+Exec=gotrainer
+Icon=gotrainer
+Terminal=false
+Categories=Game;BoardGame;
+Keywords=go;baduk;weiqi;igo;tsumego;katago;го;
+StartupWMClass=gotrainer
