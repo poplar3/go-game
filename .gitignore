@@ -10,3 +10,10 @@ build-katago/
 out/
 katago-bin/
 dist/
+
+# Версия для ПК
+.venv/
+.venv-build/
+desktop/katago/
+__pycache__/
+*.pyc
